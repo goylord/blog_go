@@ -3,13 +3,28 @@ package article
 import (
 	"github.com/gin-gonic/gin"
 	"blog/services/article"
+	"encoding/json"
+	"io/ioutil"
 )
 
 func Publish(c *gin.Context) {
 	httpStatus := 200
 	httpMessage := "文章新建成功"
 	title := c.Query("title")
-	content := c.Query("content")
+	content := ""
+	bodyContent, err := ioutil.ReadAll(c.Request.Body)
+	if err != nil {
+		httpMessage = "解析文档内容失败"
+		httpStatus = 500
+	}
+	var contentMap map[string]string
+	json.Unmarshal(bodyContent, &contentMap)
+	if _, ok := contentMap["content"]; ok {
+		content = contentMap["content"]
+	} else {
+		httpMessage = "文档内容为空"
+		httpStatus = 400
+	}
 	previewContent := c.Query("previewContent")
 	creatorId := c.Query("creatorId")
 	classId := c.Query("classId")

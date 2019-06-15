@@ -11,4 +11,6 @@ func RegisterRouters(router *gin.Engine) {
 	DealWithArticleRoute(articleRouter)
 	fileRouter := router.Group("file")
 	DealWithFileRoute(fileRouter)
+	commentRouter := router.Group("comment")
+	DealWithCommentRoute(commentRouter)
 }
