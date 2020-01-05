@@ -1,18 +1,21 @@
 package main
-import(
+
+import (
+	"blog/middleware"
 	"blog/routers"
-	"github.com/gin-gonic/gin"
 	"blog/util"
 	"log"
-)
-import (
+
+	"github.com/gin-gonic/gin"
 )
 
-func main()  {
+func main() {
 	// Register the sever router
 	router := gin.Default()
+	middleware.UserSession(router)
+	router.Use(middleware.UserPermission)
 	log.Println(util.GetCurrentDirectory())
-	router.Static("/publish", util.GetCurrentDirectory() + "/publish")
+	router.Static("/publish", util.GetCurrentDirectory()+"/publish")
 	routers.RegisterRouters(router)
 	router.Run()
 }

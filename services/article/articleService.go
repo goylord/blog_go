@@ -1,24 +1,26 @@
 package articleService
 
-import(
+import (
 	// "blog/models/article"
+	mydb "blog/db/mysql"
 	"blog/util"
-	"strconv"
-	mydb"blog/db/mysql"
 	"fmt"
+	"strconv"
+
+	"github.com/gohouse/gorose"
 )
 
-func CreateNewArticle( title string, content string, previewContent string, creatorId string, classId string) (string, error) {
+func CreateNewArticle(title string, content string, previewContent string, creatorId string, classId string) (string, error) {
 	var sqlConn = mydb.Conn()
 	var articleId = util.GetRowId()
-	_,err := sqlConn.Execute("insert into articles(title, content, previewContent, creatorId, classId, id) values(?,?,?,?,?,?)", title, content, previewContent, creatorId, classId, articleId)
+	_, err := sqlConn.Execute("insert into articles(title, content, previewContent, creatorId, classId, id) values(?,?,?,?,?,?)", title, content, previewContent, creatorId, classId, articleId)
 	if err != nil {
 		fmt.Println("Create article failed, error: %s\n", err.Error())
 		return "", err
 	}
 	return articleId, nil
 }
-func GetList(pageNo string, pageSize string) ([]map[string]interface{}, error){
+func GetList(pageNo string, pageSize string) ([]gorose.Data, error) {
 	// var articleList []model.Articles
 	var sqlConn = mydb.Conn()
 	pageNoInt, err := strconv.Atoi(pageNo)
@@ -29,9 +31,9 @@ func GetList(pageNo string, pageSize string) ([]map[string]interface{}, error){
 		pageSizeInt = 10
 	}
 	// err = sqlConn.Table(&articleList).Join("users","articles.creatorId","=","users.id").Limit(pageSizeInt).Offset((pageNoInt - 1) * pageSizeInt).Select()
-	data,err := sqlConn.Query("SELECT articles.*,users.username,files.filename FROM " +
-	"articles Left Join users On users.id=articles.creatorId Left Join files On files.assoId=articles.id LIMIT ?" + 
-	" OFFSET ?", pageSizeInt, (pageNoInt - 1) * pageSizeInt)
+	data, err := sqlConn.Query("SELECT articles.*,users.username,files.filename FROM "+
+		"articles Left Join users On users.id=articles.creatorId Left Join files On files.assoId=articles.id LIMIT ?"+
+		" OFFSET ?", pageSizeInt, (pageNoInt-1)*pageSizeInt)
 	if err != nil {
 		fmt.Println("Get article list failed,error:", err.Error(), pageNoInt, pageSizeInt)
 		return nil, err

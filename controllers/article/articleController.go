@@ -1,10 +1,12 @@
 package article
 
 import (
-	"github.com/gin-gonic/gin"
-	"blog/services/article"
+	articleService "blog/services/article"
 	"encoding/json"
 	"io/ioutil"
+
+	"github.com/gin-gonic/gin"
+	"github.com/gohouse/gorose"
 )
 
 func Publish(c *gin.Context) {
@@ -47,25 +49,25 @@ func Publish(c *gin.Context) {
 			creatorId = "01"
 		}
 	}
-	if (httpStatus != 200) {
+	if httpStatus != 200 {
 		c.JSON(httpStatus, gin.H{
-			"status": httpStatus,
+			"status":  httpStatus,
 			"message": httpMessage,
-		})	
+		})
 		return
 	}
 	articleId, err := articleService.CreateNewArticle(title, content, previewContent, creatorId, classId)
 	if err != nil {
 		c.JSON(500, gin.H{
-			"status": 500,
+			"status":  500,
 			"message": "文章新建失败" + err.Error(),
 		})
 		return
 	}
 	c.JSON(200, gin.H{
-		"status": 200,
+		"status":  200,
 		"message": "文章新建成功",
-		"id": articleId,
+		"id":      articleId,
 	})
 
 }
@@ -73,27 +75,27 @@ func Delete(c *gin.Context) {
 	id := c.Query("id")
 	if id == "" {
 		c.JSON(400, gin.H{
-			"status": 400,
+			"status":  400,
 			"message": "请传入删除文章id",
 		})
 	}
 	_, err := articleService.DeleteArticle(id)
 	if err != nil {
 		c.JSON(500, gin.H{
-			"status": 500,
+			"status":  500,
 			"message": "删除失败，" + err.Error(),
 		})
 		return
 	}
 	c.JSON(200, gin.H{
-		"status": 200,
+		"status":  200,
 		"message": "删除成功",
 	})
 }
 func Edit(c *gin.Context) {
 }
 func GetArticleList(c *gin.Context) {
-	var articleList []map[string]interface{}
+	var articleList []gorose.Data
 	pageNo := c.Query("pageNo")
 	pageSize := c.Query("pageSize")
 	if pageNo == "" {
@@ -104,15 +106,15 @@ func GetArticleList(c *gin.Context) {
 	}
 	articleList, err := articleService.GetList(pageNo, pageSize)
 	if err != nil {
-		c.JSON(500, gin.H {
-			"status": 500,
+		c.JSON(500, gin.H{
+			"status":  500,
 			"message": "查询出错, error:" + err.Error(),
 		})
 		return
 	}
 	c.JSON(200, gin.H{
-		"status": 200,
+		"status":  200,
 		"message": "查询成功",
-		"data": articleList,
+		"data":    articleList,
 	})
 }
